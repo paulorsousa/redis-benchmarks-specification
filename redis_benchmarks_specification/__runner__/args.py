@@ -219,4 +219,9 @@ def create_client_runner_args(project_name):
         default="",
         help="UNIX Domain socket name",
     )
+    parser.add_argument(
+        "--topology",
+        default="",
+        help="Filter tests to run only with the specified topology (e.g. oss-standalone)",
+    )
     return parser

@@ -97,7 +97,19 @@ def main():
     )
     args = parser.parse_args()
 
-    run_client_runner_logic(args, project_name, project_name_suffix, project_version)
+    # Debug output
+    print("DEBUG: Starting main function")
+    print(f"DEBUG: Topology filter: {args.topology}")
+
+    # Redirect stdout to a file for debugging
+    import sys
+    original_stdout = sys.stdout
+    with open('debug_output.txt', 'w') as f:
+        sys.stdout = f
+        print("DEBUG: Redirected stdout to file")
+        print(f"DEBUG: Topology filter: {args.topology}")
+        run_client_runner_logic(args, project_name, project_name_suffix, project_version)
+        sys.stdout = original_stdout
 
 
 def run_client_runner_logic(args, project_name, project_name_suffix, project_version):
@@ -383,6 +395,11 @@ def process_self_contained_coordinator_stream(
             shutil.rmtree(temporary_dir_client, ignore_errors=True)
             logging.info(f"Removing temporary client dir {temporary_dir_client}")
 
+    # Debug output
+    print(f"DEBUG: Starting process_self_contained_coordinator_stream")
+    print(f"DEBUG: Topology filter: {args.topology}")
+    print(f"DEBUG: Test files: {testsuite_spec_files}")
+
     overall_result = True
     results_matrix = []
     total_test_suite_runs = 0
@@ -418,7 +435,18 @@ def process_self_contained_coordinator_stream(
                     )
                 )
 
+            print(f"DEBUG: Test file: {test_file}, Test name: {test_name}")
+            print(f"DEBUG: Available topologies: {benchmark_config['redis-topologies']}")
+
             for topology_spec_name in benchmark_config["redis-topologies"]:
+                # Filter by topology if specified
+                if args.topology and args.topology != "":
+                    if topology_spec_name != args.topology:
+                        print(f"DEBUG: Skipping topology {topology_spec_name} as it doesn't match the requested topology {args.topology}")
+                        continue
+                    else:
+                        print(f"DEBUG: Running topology {topology_spec_name} as it matches the requested topology {args.topology}")
+
                 test_result = False
                 benchmark_tool_global = ""
                 full_result_path = None
