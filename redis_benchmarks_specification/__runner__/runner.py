@@ -420,7 +420,11 @@ def process_self_contained_coordinator_stream(
 
             for topology_spec_name in benchmark_config["redis-topologies"]:
                 # Filter by topology if specified
-                if args.topology and args.topology != "" and topology_spec_name != args.topology:
+                if (
+                    args.topology
+                    and args.topology != ""
+                    and topology_spec_name != args.topology
+                ):
                     logging.info(
                         f"Skipping topology {topology_spec_name} as it doesn't match the requested topology {args.topology}"
                     )
