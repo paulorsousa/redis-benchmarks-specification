@@ -258,18 +258,18 @@ def test_extract_testsuites():
         ]
     )
     tests = extract_testsuites(args)
-    assert len(tests) == 9
+    assert len(tests) == 10
 
     args = parser.parse_args(
         args=[
             "--test-suites-folder",
             "./utils/tests/test_data/test-suites",
             "--tests-regex",
-            ".*\.yml",
+            r".*\.yml",
         ]
     )
     tests = extract_testsuites(args)
-    assert len(tests) == 9
+    assert len(tests) == 10
 
     args = parser.parse_args(
         args=[
