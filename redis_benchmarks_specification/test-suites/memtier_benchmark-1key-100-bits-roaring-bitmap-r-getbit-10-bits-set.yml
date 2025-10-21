@@ -1,0 +1,46 @@
+version: 0.4
+name: memtier_benchmark-1key-100-bits-roaring-bitmap-r-getbit-10-bits-set
+description: Runs memtier_benchmark, for a single key with 100 bits focusing on R.GETBIT
+  performance using redis-roaring. The roaring bitmap has a size of 100 bits and approximately 10 bits are set.
+  The benchmark performs random R.GETBIT operations on the key.
+dbconfig:
+  configuration-parameters:
+    save: '""'
+  check:
+    keyspacelen: 1
+  init_commands:
+  - '"R.SETBIT" "roaring_bitmap_key" "100" "1"'
+  preload_tool:
+    run_image: redislabs/memtier_benchmark:edge
+    tool: memtier_benchmark
+    arguments: --hide-histogram --command "R.SETBIT roaring_bitmap_key __key__ 1" --key-maximum 100
+      --key-minimum 1 -n 10 --key-prefix "" --command-key-pattern R --distinct-client-seed
+  resources:
+    requests:
+      cpus: '2'
+      memory: 1g
+  dataset_name: 1key-roaring-bitmap-100bits-10bits-set
+  dataset_description: This dataset contains 1 roaring bitmap key with a size of 100 bits,
+    approximately 10 bits are set to 1, and random R.GETBIT operations are performed.
+tested-commands:
+- r.getbit
+tested-groups:
+- bitmap
+- roaring
+redis-topologies:
+- oss-standalone
+build-variants:
+- gcc:15.2.0-amd64-debian-bookworm-default
+- gcc:15.2.0-arm64-debian-bookworm-default
+- dockerhub
+clientconfig:
+  run_image: redislabs/memtier_benchmark:edge
+  tool: memtier_benchmark
+  arguments: --command "R.GETBIT roaring_bitmap_key __key__" --key-maximum 100 --key-minimum
+    1 --key-prefix "" --command-key-pattern R --distinct-client-seed --test-time 60
+    --hide-histogram -c 50 -t 4
+  resources:
+    requests:
+      cpus: '4'
+      memory: 2g
+priority: 19
