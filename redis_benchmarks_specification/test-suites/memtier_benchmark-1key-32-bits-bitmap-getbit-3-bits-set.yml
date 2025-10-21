@@ -1,0 +1,46 @@
+version: 0.4
+name: memtier_benchmark-1key-32-bits-bitmap-getbit-3-bits-set
+description: Runs memtier_benchmark, for a single key with 32 bits focusing on GETBIT
+  performance. The bitmap has a size of 32 bits and approximately 3 bits are set.
+  The benchmark performs random GETBIT operations on the key.
+dbconfig:
+  configuration-parameters:
+    save: '""'
+  check:
+    keyspacelen: 1
+  init_commands:
+  - '"SETBIT" "bitmap_key" "32" "1"'
+  preload_tool:
+    run_image: redislabs/memtier_benchmark:edge
+    tool: memtier_benchmark
+    arguments: --hide-histogram --command "SETBIT bitmap_key __key__ 1" --key-maximum 32
+      --key-minimum 1 -n 3 --key-prefix "" --command-key-pattern R --distinct-client-seed
+      --pipeline 1
+  resources:
+    requests:
+      cpus: '2'
+      memory: 1g
+  dataset_name: 1key-bitmap-32bits-3bits-set
+  dataset_description: This dataset contains 1 bitmap key with a size of 32 bits,
+    approximately 3 bits are set to 1, and random GETBIT operations are performed.
+tested-commands:
+- getbit
+tested-groups:
+- bitmap
+redis-topologies:
+- oss-standalone
+build-variants:
+- gcc:15.2.0-amd64-debian-bookworm-default
+- gcc:15.2.0-arm64-debian-bookworm-default
+- dockerhub
+clientconfig:
+  run_image: redislabs/memtier_benchmark:edge
+  tool: memtier_benchmark
+  arguments: --command "GETBIT bitmap_key __key__" --key-maximum 32 --key-minimum
+    1 --key-prefix "" --command-key-pattern R --distinct-client-seed --test-time 60
+    --hide-histogram -c 50 -t 4
+  resources:
+    requests:
+      cpus: '4'
+      memory: 2g
+priority: 19
