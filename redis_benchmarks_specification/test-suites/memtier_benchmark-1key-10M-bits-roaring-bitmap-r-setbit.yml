@@ -1,0 +1,40 @@
+version: 0.4
+name: memtier_benchmark-1key-10M-bits-roaring-bitmap-r-setbit
+description: Runs memtier_benchmark, for a single key with 10M bits focusing on R.SETBIT
+  performance using redis-roaring. The benchmark performs random R.SETBIT operations on the key for 60 seconds.
+dbconfig:
+  configuration-parameters:
+    save: '""'
+  check:
+    keyspacelen: 1
+  init_commands:
+  - '"R.SETBIT" "roaring_bitmap_key" "10000000" "1"'
+  resources:
+    requests:
+      cpus: '2'
+      memory: 1g
+  dataset_name: 1key-roaring-bitmap-10Mbits-setbit
+  dataset_description: This dataset contains 1 roaring bitmap key with a size of 10M bits,
+    and random R.SETBIT operations are performed for 60 seconds.
+tested-commands:
+- r.setbit
+tested-groups:
+- bitmap
+- roaring
+redis-topologies:
+- oss-standalone
+build-variants:
+- gcc:15.2.0-amd64-debian-bookworm-default
+- gcc:15.2.0-arm64-debian-bookworm-default
+- dockerhub
+clientconfig:
+  run_image: redislabs/memtier_benchmark:edge
+  tool: memtier_benchmark
+  arguments: --command "R.SETBIT roaring_bitmap_key __key__ 1" --key-maximum 10000000 --key-minimum
+    1 --key-prefix "" --command-key-pattern R --distinct-client-seed --test-time 60
+    --hide-histogram -c 50 -t 4 --pipeline 25
+  resources:
+    requests:
+      cpus: '4'
+      memory: 2g
+priority: 19
